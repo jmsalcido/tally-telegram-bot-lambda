@@ -1,4 +1,3 @@
-const AWS = require('aws-sdk');
 const crypto = require('crypto');
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -31,8 +30,12 @@ module.exports.webhook = async (event) => {
         ? event.headers['X-CHAT-ID']
         : process.env.TELEGRAM_DEFAULT_CHAT_ID;
 
+    const message = `New Tally Response!!!\n\n*Answers from:* ${body.data.formName}\n\n`;
+    const answers = body.data.fields.map(field => `- *${field.label}*: ${field.value}`).join('\n');
+
     const bot = new TelegramBot(botToken, {polling: false});
-    await bot.sendMessage(chatId, 'Webhook received!');
+    const markdownMessage = message + answers;
+    await bot.sendMessage(chatId, markdownMessage, {parse_mode: 'Markdown'});
 
     return {
         statusCode: 200,
